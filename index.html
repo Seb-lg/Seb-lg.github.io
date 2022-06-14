@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <body>
     <canvas id="c"></canvas>
     <style>
@@ -5,23 +6,57 @@
             width: 100vw;
             height: 100vh;
             margin:0;
+            overflow: hidden;
         }
-    </style>
+        </style>
+    <script type="module" src="objcreator.js"></script>
     <script type="module">
         import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js";
+        import { OBJLoader } from './OBJLoader.js'
+        import { grid_pannel } from "./objcreator.js"
+
+        function conv(degrees)
+        {
+            var pi = Math.PI;
+            return degrees * (pi/180);
+        }
 
         function main() {
             const canvas = document.querySelector('#c');
             const renderer = new THREE.WebGLRenderer({canvas});
-
+            const loader = new OBJLoader();
+            
             const fov = 75;
             const aspect = 2;  // the canvas default
             const near = 0.1;
-            const far = 5;
+            const far = 100;
             const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
             camera.position.z = 2;
-
+            
             const scene = new THREE.Scene();
+            // loader.load("scene.obj", function (object) {
+
+            //     object.traverse( function ( child ) {
+
+            //         if ( child instanceof THREE.Mesh ) {
+            //             const material = new THREE.MeshPhongMaterial({color:0xffffff});
+
+            //             child.material = material;
+            //             child.material.opacity = 0;
+
+            //         }
+
+            //     } );
+
+            //     object.rotation.x = conv(90);
+            //     object.rotation.y = conv(-10);
+            //     object.rotation.z = conv(-10);
+            //     const scale = 0.5; 
+            //     object.position.x = -0.5;
+            //     object.scale.set(scale,scale*2,scale);
+            //     // let oui = new THREE.WireframeGeometry(object);
+            //     scene.add(object);
+            // });
 
             {
                 const color = 0xFFFFFF;
@@ -31,82 +66,9 @@
                 scene.add(light);
             }
 
-            const boxWidth = 1;
-            const boxHeight = 1;
-            const boxDepth = 1;
-            const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-
-            function makeInstance(geometry, color, x) {
-                const material = new THREE.MeshPhongMaterial({color});
-
-                const cube = new THREE.Mesh(geometry, material);
-                scene.add(cube);
-
-                cube.position.x = x;
-
-                return cube;
-            }
-            function GridGeometry(width = 1, height = 1, wSeg = 1, hSeg = 1, lExt = [0, 0]){
-                let seg = new THREE.Vector2(width / wSeg, height / hSeg);
-                let hlfSeg = seg.clone().multiplyScalar(0.5);
-                
-                let pts = [];
-                
-                for(let y = 0; y <= hSeg; y++){
-                    pts.push(
-                    new THREE.Vector2(0, y * seg.y),
-                    new THREE.Vector2(width + (hlfSeg.x * lExt[0]), y * seg.y)
-                )
-                }
-                
-                for(let x = 0; x <= wSeg; x++){
-                    pts.push(
-                    new THREE.Vector2(x * seg.x, 0),
-                    new THREE.Vector2(x * seg.x, height + (hlfSeg.y * lExt[1]))
-                )
-                }
-                
-                return new THREE.BufferGeometry().setFromPoints(pts);
-                
-            }
-
-            let g1 = GridGeometry(1, 1, 8, 8, [0, 0]);
-            let m1 = new THREE.LineBasicMaterial({color: "white"});
-            let grid1 = new THREE.LineSegments(g1, m1);
-            grid1.position.set(-0.8,0,0);
-            scene.add(grid1);
-
-            // let g2 = GridGeometry(5, 5, 8, 8, [0, 0]);
-            // g2.rotateX(Math.PI * 0.5);
-            // let m2 = new THREE.LineBasicMaterial({color: "white"});
-            // let grid2 = new THREE.LineSegments(g2, m2);
-            // scene.add(grid2);
-
-            // let g3 = GridGeometry(5, 5, 8, 8, [0, 0]);
-            // g3.rotateY(Math.PI * -0.5);
-            // let m3 = new THREE.LineBasicMaterial({color: "white"});
-            // let grid3 = new THREE.LineSegments(g3, m3);
-            // scene.add(grid3);
-
-            // let g4 = GridGeometry(5, 5, 8, 8, [0, 0]);
-            // g4.rotateY(Math.PI * -0.5);
-            // let m4 = new THREE.LineBasicMaterial({color: "white"});
-            // let grid4 = new THREE.LineSegments(g4, m4);
-            // scene.add(grid4);
-            // grid4.position.set(5,0,0);
-
-            // let g5 = GridGeometry(5, 5, 8, 8, [0, 0]);
-            // g5.rotateX(Math.PI * 0.5);
-            // let m5 = new THREE.LineBasicMaterial({color: "white"});
-            // let grid5 = new THREE.LineSegments(g5, m5);
-            // scene.add(grid5);
-            // grid5.position.set(0,5,0);
-
-            const cubes = [
-                makeInstance(geometry, 0x44aa88,  0),
-                makeInstance(geometry, 0x8844aa, -2),
-                makeInstance(geometry, 0xaa8844,  2),
-            ];
+            grid_pannel(8, 4, 1, [0,0,-5], [0,conv(90),0], scene);
+            grid_pannel(8, 4, 1, [0,0,5], [0,conv(90),0], scene);
+            grid_pannel(8, 4, 1, [0,0,-5], [0,0,0], scene);
 
             function resizeRendererToDisplaySize(renderer) {
                 const canvas = renderer.domElement;
@@ -128,12 +90,7 @@
                     camera.updateProjectionMatrix();
                 }
 
-                cubes.forEach((cube, ndx) => {
-                    const speed = 1 + ndx * .1;
-                    const rot = time * speed;
-                    cube.rotation.x = rot;
-                    cube.rotation.y = rot;
-                });
+                // camera.position.z +=0.1;
 
                 renderer.render(scene, camera);
 
@@ -145,4 +102,5 @@
 
         main();
     </script>
+
 </body>
