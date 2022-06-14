@@ -66,9 +66,11 @@
                 scene.add(light);
             }
 
-            grid_pannel(8, 4, 1, [0,0,-5], [0,conv(90),0], scene);
-            grid_pannel(8, 4, 1, [0,0,5], [0,conv(90),0], scene);
+            grid_pannel(8, 4, 1, [1,0,-5], [0,conv(90),0], scene);
+            grid_pannel(8, 4, 1, [1,0,5], [0,conv(90),0], scene);
             grid_pannel(8, 4, 1, [0,0,-5], [0,0,0], scene);
+            grid_pannel(8, 4, 1, [0,-2,-2.5], [conv(90),0,0], scene);
+            grid_pannel(8, 4, 1, [0,-2,2.5], [conv(90),0,0], scene);
 
             function resizeRendererToDisplaySize(renderer) {
                 const canvas = renderer.domElement;
